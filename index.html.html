@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>나 왜 자꾸 새벽에 결제함?</title>
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="나 왜 자꾸 새벽에 결제함?">
+<meta property="og:description" content="3분 · 12문항 · 가입 없이. 내 소비 유형 확인하기">
+<meta property="og:image" content="og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#14203A">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+
+<style>
+:root{
+  --navy:#14203A;
+  --amber:#F2C14E;
+  --plum:#3B3A6B;
+  --paper:#F7F5F0;
+  --gray:#8B93A3;
+  --ink:#3A2A05;
+  --line:#D9DDE4;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+body{
+  font-family:Pretendard,-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  background:#0E1729;
+  color:var(--navy);
+  overscroll-behavior:none;
+}
+#app{
+  max-width:430px;margin:0 auto;min-height:100vh;min-height:100dvh;
+  background:var(--paper);position:relative;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.scr{
+  flex:1;display:none;flex-direction:column;
+  padding:28px 24px 32px;animation:in .28s ease both;
+}
+.scr.on{display:flex}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.scr{animation:none}}
+
+.dark{background:var(--navy);color:var(--paper)}
+.dark .sub{color:#9FB0CC}
+
+h1{font-size:29px;line-height:1.34;font-weight:700;margin:0 0 14px;letter-spacing:-.02em}
+h2{font-size:21px;line-height:1.4;font-weight:700;margin:0 0 10px;letter-spacing:-.02em}
+p{margin:0}
+.sub{font-size:14px;color:var(--gray);line-height:1.6}
+.center{text-align:center}
+.grow{flex:1}
+.sp{height:20px}
+
+button{font-family:inherit;cursor:pointer;border:none;background:none;padding:0;color:inherit}
+.btn{
+  width:100%;padding:17px;border-radius:30px;background:var(--amber);color:var(--ink);
+  font-size:16px;font-weight:700;letter-spacing:-.01em;
+}
+.btn:active{transform:scale(.985)}
+.btn.ghost{background:transparent;border:1.5px solid currentColor;color:inherit;font-weight:600}
+.btn.plain{background:transparent;color:var(--gray);font-weight:500;font-size:14px;padding:12px}
+
+/* 문항 */
+.bar{height:5px;background:#E6E8ED;border-radius:3px;overflow:hidden;margin:10px 0 30px}
+.bar i{display:block;height:100%;background:var(--amber);border-radius:3px;transition:width .3s ease}
+.count{font-size:13px;color:var(--gray);font-weight:600}
+.opt{
+  display:block;width:100%;text-align:left;padding:17px 18px;margin-bottom:9px;
+  border:1.5px solid var(--line);border-radius:14px;background:#fff;
+  font-size:15px;line-height:1.4;font-weight:500;letter-spacing:-.01em;
+  transition:border-color .12s,background .12s;
+}
+.opt:active,.opt.sel{border-color:var(--amber);background:#FFF8E8}
+.back{align-self:flex-start;font-size:14px;color:var(--gray);padding:14px 4px}
+
+/* 결과 */
+.tname{font-size:33px;font-weight:800;line-height:1.2;letter-spacing:-.03em;margin:0 0 10px}
+.tline{font-size:16px;line-height:1.5;font-weight:500;opacity:.92}
+.card{border-radius:16px;padding:18px 20px;margin-top:14px}
+.card h3{margin:0 0 10px;font-size:14px;font-weight:700;letter-spacing:-.01em}
+.card ul{margin:0;padding-left:16px}
+.card li{font-size:14px;line-height:1.75;letter-spacing:-.01em}
+.card p{font-size:14px;line-height:1.7;letter-spacing:-.01em}
+.card .rtitle{font-size:17px;font-weight:700;line-height:1.45;margin-bottom:7px;letter-spacing:-.02em}
+.pct{font-size:13px;margin-top:20px;opacity:.7;text-align:center}
+
+/* 궁합 */
+.mrow{display:flex;gap:14px;justify-content:center;align-items:flex-end;margin:6px 0 20px}
+.mtag{font-size:12px;font-weight:700;letter-spacing:.02em;margin-bottom:6px;opacity:.75}
+.mname{font-size:19px;font-weight:800;letter-spacing:-.02em;margin-bottom:5px}
+
+/* 입력 */
+.field{margin-bottom:16px}
+.flabel{font-size:14px;font-weight:600;margin-bottom:8px;display:block}
+.inp{
+  width:100%;padding:16px 18px;border:1.5px solid var(--line);border-radius:14px;
+  font-size:16px;font-family:inherit;background:#fff;color:var(--navy);
+  outline:none;letter-spacing:-.01em;
+}
+.inp:focus{border-color:var(--amber)}
+.inp::placeholder{color:#B9BFC9}
+.err{font-size:13px;color:#C4553D;margin-top:7px;display:none}
+.err.on{display:block}
+
+.toast{
+  position:fixed;left:50%;bottom:32px;transform:translateX(-50%);
+  background:var(--navy);color:var(--paper);padding:13px 22px;border-radius:24px;
+  font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .25s;z-index:9;
+}
+.toast.on{opacity:1}
+svg{display:block}
+
+.sheet{
+  position:fixed;inset:0;background:rgba(10,16,30,.55);z-index:20;
+  display:none;align-items:flex-end;justify-content:center;
+}
+.sheet.on{display:flex}
+.sheet-in{
+  width:100%;max-width:430px;background:#fff;color:var(--navy);
+  border-radius:20px 20px 0 0;padding:24px 22px 26px;
+  animation:up .22s ease both;
+}
+@keyframes up{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
+.sheet h3{margin:0 0 6px;font-size:17px;font-weight:700;letter-spacing:-.02em}
+.sheet .sub{margin-bottom:14px}
+.linkbox{
+  width:100%;padding:14px 16px;border:1.5px solid var(--line);border-radius:12px;
+  background:#F7F8FA;font-size:14px;font-family:inherit;color:var(--navy);
+  line-height:1.6;resize:none;outline:none;display:block;
+}
+.linkbox:focus{border-color:var(--amber)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-in">
+    <h3>이 링크를 보내세요</h3>
+    <p class="sub">아래 버튼을 누르면 복사돼요</p>
+    <textarea class="linkbox" id="linktext" readonly rows="3"></textarea>
+    <div style="height:12px"></div>
+    <button class="btn" id="docopy">복사하기</button>
+    <button class="btn plain" id="sheetclose" style="color:var(--gray)">닫기</button>
+  </div>
+</div>
+
+<script>
+/* ============ 설정 ============ */
+/* Supabase 키를 넣으면 서버 저장이 켜집니다. 비워두면 브라우저에만 저장됩니다. */
+const CONFIG = {
+  supabaseUrl: "",
+  supabaseKey: ""
+};
+
+/* ============ 12문항 ============ */
+const AXES = ["decision","decision","decision","decision","motive","motive","motive","motive","regret","regret","regret","regret"];
+const SCORE = [2,1,-1,-2];
+
+const Q = [
+ ["장바구니에 담아둔 물건,\n보통 어떻게 됨?",["담자마자 바로 결제","하루 이틀 두고 다시 봄","일주일 넘게 방치","담아둔 것도 까먹음"]],
+ ["사고 싶은 게 생겼을 때\n나는",["일단 사고 생각함","리뷰 몇 개 보고 삼","블로그·유튜브까지 찾아봄","최저가 비교하다 하루 넘김"]],
+ ["\"오늘만 이 가격\"\n보면",["지금 아니면 안 됨","마음이 급해지긴 함","진짜 오늘만인지 검색해봄","저런 거 매주 함"]],
+ ["결제 버튼 앞에서\n멈춘 적",["거의 없음","가끔","자주","멈췄다가 창 닫은 적 많음"]],
+ ["최근에 산 것 중\n제일 만족스러운 거는",["그냥 예뻐서 산 거","갖고 싶었던 거","필요해서 산 거","고장 나서 어쩔 수 없이"]],
+ ["힘든 날\n나는",["장바구니를 연다","뭔가 시켜 먹는다","그냥 잔다","오히려 돈 안 씀"]],
+ ["이거 살까 고민될 때\n결정적인 한 방은",["그냥 꽂혔음","사진이 예쁨","리뷰가 좋음","지금 이게 없어서 불편함"]],
+ ["내 소비를\n한 줄로 하면",["나한테 주는 선물","기분 전환","필요한 거 채우기","최대한 안 쓰기"]],
+ ["더 자주 하는\n생각은",["이거 왜 샀지","좀 참을걸","그때 살걸","품절됐네..."]],
+ ["옷장이나 서랍\n열었을 때",["안 쓰는 게 자꾸 나옴","몇 개 있긴 함","대체로 다 씀","오히려 뭐가 없음"]],
+ ["지난달 카드값\n보고",["내가 이걸 왜 샀지","좀 많이 썼네","이 정도면 괜찮음","나 너무 안 쓰나"]],
+ ["세일 끝나고 품절된 거\n발견하면",["오히려 다행","그냥 그럼","좀 아쉬움","며칠 생각남"]]
+];
+
+/* ============ 8유형 ============ */
+const T = {
+ dawn:{name:"새벽결제단",line:"낮에 봤으면 안 샀을 거임",bg:"#14203A",dark:1,
+   weak:["자정 넘어서 침대에 누워 있을 때","기분 가라앉은 날","무료배송 기준까지 3천원 남았을 때"],
+   good:"좋아하는 것에 쓴 돈은 후회 안 함. 문제는 금액이 아니라 시간대.",
+   rule:"밤 11시 넘으면 장바구니에만 담기",why:"낮에 다시 보면 절반은 안 사게 돼요.\n참으라는 게 아니라 시간만 옮기는 거예요.",
+   eye:{x:0,y:7,s:1}},
+ just:{name:"일단질러파",line:"필요했음. 근데 두 개 있었음",bg:"#3B3A6B",dark:1,
+   weak:["집에 있는지 확인 안 하고 주문","\"어차피 쓸 건데\"로 시작하는 결제","소모품 대량 구매"],
+   good:"고민에 시간 안 씀. 재고만 확인하면 후회가 절반으로 준다.",
+   rule:"주문 전에 서랍 한 번 열어보기",why:"\"어차피 쓸 건데\"로 시작한 결제는\n대개 이미 집에 있어요.",
+   eye:{x:0,y:0,s:1.15}},
+ three:{name:"3일고민후결제",line:"고민한 시간이 아까워서 삼",bg:"#23404A",dark:1,
+   weak:["오래 고민했다는 게 사도 되는 이유가 됨","장바구니에 오래 둘수록 애착이 생김","사고 나서 \"왜 이렇게 고민했지\""],
+   good:"충동구매는 거의 없음. 고민 기한만 정해두면 되는 유형.",
+   rule:"고민 기한을 3일로 정하기",why:"넘어가면 그냥 포기.\n오래 고민한 건 사도 되는 이유가 아니에요.",
+   eye:{x:0,y:-7,s:1}},
+ review:{name:"리뷰만4시간",line:"그렇게 알아봤는데 왜 후회함",bg:"#402C4A",dark:1,
+   weak:["정보를 너무 많이 봐서 뭘 원했는지 잊음","스펙 좋은 걸 샀는데 내가 안 씀","남의 기준으로 삼"],
+   good:"실패 확률 낮음. \"내가 쓸 건가\"만 한 번 물으면 되는 유형.",
+   rule:"리뷰는 5개까지만 보기",why:"대신 \"남들이 좋다는 건가, 내가 쓸 건가\"를\n한 번만 물어보세요.",
+   eye:{x:0,y:0,s:.45}},
+ then:{name:"그때살걸",line:"참았는데 왜 더 생각남",bg:"#F7F5F0",dark:0,
+   weak:["품절 페이지 보고 있을 때","남이 산 거 보고 있을 때","참은 게 아까워서 결국 더 비싼 걸 삼"],
+   good:"결정이 빨라서 시간을 안 버림. 참으려다 스트레스 받느니 작게 자주 쓰는 게 나은 유형.",
+   rule:"월 예산을 정하고 그 안에선 그냥 쓰기",why:"참는 게 능사가 아니에요.\n참았다 더 비싼 걸 사는 게 진짜 손해예요.",
+   eye:{x:-7,y:0,s:1}},
+ anyway:{name:"어차피살거임",line:"미루면 더 비싸짐",bg:"#EFE4D2",dark:0,
+   weak:["사실 급하지 않은데 지금 사야 할 것 같음","세일 종료 타이머","누가 옆에서 고민하면 같이 삼"],
+   good:"후회가 제일 적은 유형. 필요한 것만 사고 결정도 빠름. 문제는 타이밍뿐.",
+   rule:"타이머 보이면 하루만 미루기",why:"진짜 필요하면 내일도 사게 돼요.\n미루는 게 아니라 확인하는 거예요.",
+   eye:{x:0,y:0,s:1.2}},
+ wish:{name:"위시리스트만백개",line:"담아만 두고 안 삼",bg:"#E4EDE6",dark:0,
+   weak:["담아둔 걸 몇 달째 들여다봄","결국 품절되면 며칠 아쉬움","안 쓰는데 안 즐겁지도 않음"],
+   good:"돈은 확실히 아낌. 다만 아낀 만큼 즐겁진 않은 상태. 가끔은 사도 된다.",
+   rule:"한 달에 하나는 실제로 사기",why:"담아두기만 하는 건 아낀 게 아니라 미룬 거예요.\n가끔은 사도 됩니다.",
+   eye:{x:-5,y:-6,s:1}},
+ soldout:{name:"품절알림러",line:"다 알아봤는데 그새 품절",bg:"#F0E1E6",dark:0,
+   weak:["완벽한 타이밍 기다리다 놓침","필요한 것도 미룸","결국 급하게 아무거나 삼"],
+   good:"낭비가 없음. 결정 기한만 정하면 되는 유형.",
+   rule:"알아보는 기한을 일주일로 정하기",why:"완벽한 타이밍은 안 와요.\n놓치는 것도 똑같이 손해입니다.",
+   eye:{x:7,y:0,s:1}}
+};
+
+const WORST={dawn:"anyway",anyway:"dawn",then:"just",just:"then",three:"wish",wish:"three",review:"soldout",soldout:"review"};
+const BRAKE={dawn:"soldout",just:"review",three:"soldout",review:"wish",then:"anyway",anyway:"then",wish:"anyway",soldout:"then"};
+
+/* ============ 캐릭터 ============ */
+function heum(size,o){
+  o=o||{};
+  const x=o.x||0, y=o.y||0, s=o.s||1;
+  const tear=o.tear?`<path d="M138 344 Q130 358 134 367 Q139 376 148 371 Q157 366 152 355 Z" fill="#F7F5F0" stroke="#14203A" stroke-width="3"/>`:"";
+  const wet=o.wet?`<circle cx="147" cy="322" r="5" fill="#F7F5F0"/><circle cx="209" cy="317" r="4.4" fill="#F7F5F0"/>`:"";
+  const mouth = o.mouth==="down"
+    ? `<path d="M168 368 Q192 356 218 368" fill="none" stroke="#14203A" stroke-width="4" stroke-linecap="round"/>`
+    : o.mouth==="dot"
+    ? `<circle cx="192" cy="362" r="6" fill="#14203A"/>`
+    : `<path d="M170 362 Q192 372 216 360" fill="none" stroke="#14203A" stroke-width="4" stroke-linecap="round"/>`;
+  return `<svg width="${size}" height="${size*0.86}" viewBox="90 240 210 180" aria-hidden="true">
+   <path d="M118 264 Q170 244 226 261 Q274 278 276 328 Q278 378 224 397 Q164 415 126 390 Q96 368 98 321 Q100 281 118 264 Z" fill="#F2C14E" stroke="#14203A" stroke-width="4" stroke-linejoin="round"/>
+   <circle cx="158" cy="318" r="30" fill="#F7F5F0" stroke="#14203A" stroke-width="4"/>
+   <circle cx="218" cy="314" r="25" fill="#F7F5F0" stroke="#14203A" stroke-width="4"/>
+   <circle cx="${158+x}" cy="${318+y}" r="${14*s}" fill="#14203A"/>
+   <circle cx="${218+x*0.9}" cy="${314+y*0.9}" r="${12*s}" fill="#14203A"/>
+   ${wet}${tear}${mouth}
+  </svg>`;
+}
+
+/* ============ 상태 ============ */
+const S={a:[],i:0,type:null,rid:null,sid:null,t0:0};
+
+function uid(n){const c="abcdefghijkmnpqrstuvwxyz23456789";let s="";for(let i=0;i<(n||8);i++)s+=c[Math.floor(Math.random()*c.length)];return s;}
+S.sid = localStorage.getItem("heum_sid") || (function(){const v=uid(12);localStorage.setItem("heum_sid",v);return v;})();
+
+/* ============ 로그 ============ */
+function log(name,payload){
+  const e={session_id:S.sid,result_id:S.rid,name:name,payload:payload||{},created_at:new Date().toISOString()};
+  const k="heum_events";
+  const arr=JSON.parse(localStorage.getItem(k)||"[]");
+  arr.push(e); localStorage.setItem(k,JSON.stringify(arr.slice(-500)));
+  if(CONFIG.supabaseUrl){
+    fetch(CONFIG.supabaseUrl+"/rest/v1/events",{method:"POST",
+      headers:{"Content-Type":"application/json",apikey:CONFIG.supabaseKey,Authorization:"Bearer "+CONFIG.supabaseKey},
+      body:JSON.stringify(e)}).catch(function(){});
+  }
+}
+function save(table,row){
+  const k="heum_"+table;
+  const arr=JSON.parse(localStorage.getItem(k)||"[]");
+  arr.push(row); localStorage.setItem(k,JSON.stringify(arr));
+  if(CONFIG.supabaseUrl){
+    fetch(CONFIG.supabaseUrl+"/rest/v1/"+table,{method:"POST",
+      headers:{"Content-Type":"application/json",apikey:CONFIG.supabaseKey,Authorization:"Bearer "+CONFIG.supabaseKey},
+      body:JSON.stringify(row)}).catch(function(){});
+  }
+}
+
+const app=document.getElementById("app");
+function render(html){app.innerHTML='<div class="scr on">'+html+'</div>';window.scrollTo(0,0);}
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("on");setTimeout(function(){t.classList.remove("on")},1800);}
+
+const sheet=document.getElementById("sheet");
+document.getElementById("sheetclose").onclick=function(){sheet.classList.remove("on")};
+sheet.onclick=function(e){if(e.target===sheet)sheet.classList.remove("on")};
+
+function shareLink(where){
+  const t=T[S.type];
+  const base=location.href.split("#")[0].split("?")[0].replace(/[^/]*$/,"");
+  const url=base+"t/"+S.type+".html";
+  const txt="나 "+t.name+" 나왔음. 너는 뭐 나옴?";
+  const full=txt+"\n"+url;
+  log("share_click",{ch:where});
+
+  if(navigator.share){
+    navigator.share({text:txt,url:url}).then(function(){
+      log("share_done",{ch:"native"});
+    }).catch(function(){
+      copyOrShow(full);
+    });
+    return;
+  }
+  copyOrShow(full);
+}
+
+function copyOrShow(full){
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(full).then(function(){
+      toast("링크 복사됨");
+      log("share_done",{ch:"clipboard"});
+    }).catch(function(){ showSheet(full); });
+  } else {
+    showSheet(full);
+  }
+}
+
+function showSheet(full){
+  const box=document.getElementById("linktext");
+  box.value=full;
+  sheet.classList.add("on");
+  log("share_done",{ch:"sheet"});
+}
+
+document.getElementById("docopy").onclick=function(){
+  const box=document.getElementById("linktext");
+  box.focus();
+  box.select();
+  box.setSelectionRange(0,box.value.length);
+  let ok=false;
+  try{ ok=document.execCommand("copy"); }catch(e){ ok=false; }
+  if(!ok && navigator.clipboard){
+    navigator.clipboard.writeText(box.value).then(function(){
+      toast("복사됨");
+    }).catch(function(){
+      toast("전체 선택됨 · 직접 복사해주세요");
+    });
+    return;
+  }
+  toast(ok?"복사됨":"전체 선택됨 · 직접 복사해주세요");
+};
+
+/* ============ ① 랜딩 ============ */
+function landing(){
+  app.className="";
+  render(`
+    <div class="scr on dark" style="display:flex">
+      <div class="grow" style="display:flex;flex-direction:column;justify-content:center;align-items:center">
+        ${heum(150,{y:7})}
+        <div class="sp"></div>
+        <h1 class="center">나 왜 자꾸<br>새벽에 결제함?</h1>
+        <p class="sub center">3분 · 12문항 · 가입 없이</p>
+      </div>
+      <button class="btn" id="go">시작하기</button>
+      <p class="sub center" style="margin-top:14px;font-size:13px">로그인 없이 결과까지 볼 수 있어요</p>
+    </div>`);
+  document.body.style.background="#0E1729";
+  document.getElementById("app").style.background="var(--navy)";
+  document.getElementById("go").onclick=function(){log("test_start");S.i=0;S.a=[];question();};
+  log("landing_view",{ref:document.referrer||null});
+}
+
+/* ============ ② 문항 ============ */
+function question(){
+  const n=S.i, q=Q[n];
+  S.t0=Date.now();
+  document.getElementById("app").style.background="var(--paper)";
+  document.body.style.background="#0E1729";
+  render(`
+    <div class="count">${n+1} / 12</div>
+    <div class="bar"><i style="width:${(n)/12*100}%"></i></div>
+    <h2>${q[0].replace(/\n/g,"<br>")}</h2>
+    <div class="sp"></div>
+    <div id="opts">
+      ${q[1].map(function(o,i){return '<button class="opt" data-i="'+i+'">'+o+'</button>'}).join("")}
+    </div>
+    <div class="grow"></div>
+    ${n>0?'<button class="back" id="bk">← 이전</button>':''}
+  `);
+  setTimeout(function(){const b=document.querySelector(".bar i");if(b)b.style.width=((n+1)/12*100)+"%";},30);
+  log("question_view",{q:n+1});
+  document.getElementById("opts").onclick=function(e){
+    const b=e.target.closest(".opt"); if(!b)return;
+    b.classList.add("sel");
+    const i=+b.dataset.i;
+    S.a[n]=i;
+    log("question_answer",{q:n+1,choice:i,ms:Date.now()-S.t0});
+    setTimeout(function(){
+      if(S.i<11){S.i++;question();} else {finish();}
+    },170);
+  };
+  if(n>0)document.getElementById("bk").onclick=function(){log("question_back",{q:n+1});S.i--;question();};
+}
+
+/* ============ 채점 ============ */
+function finish(){
+  const sum={decision:0,motive:0,regret:0};
+  S.a.forEach(function(c,i){sum[AXES[i]]+=SCORE[c];});
+  const d=sum.decision>0, m=sum.motive>0, r=sum.regret>0;
+  let code;
+  if(d&&m&&r)code="dawn";
+  else if(d&&!m&&r)code="just";
+  else if(!d&&m&&r)code="three";
+  else if(!d&&!m&&r)code="review";
+  else if(d&&m&&!r)code="then";
+  else if(d&&!m&&!r)code="anyway";
+  else if(!d&&m&&!r)code="wish";
+  else code="soldout";
+  S.type=code; S.rid=uid(8);
+  save("responses",{result_id:S.rid,answers:S.a,score_decision:sum.decision,score_motive:sum.motive,score_regret:sum.regret,type_code:code,created_at:new Date().toISOString()});
+  log("test_complete",{type:code});
+  result();
+}
+
+/* ============ ③ 결과 ============ */
+function result(){
+  const t=T[S.type];
+  const fg=t.dark?"#F7F5F0":"#14203A";
+  const cardBg=t.dark?"rgba(255,255,255,.07)":"rgba(20,32,58,.05)";
+  document.getElementById("app").style.background=t.bg;
+  document.body.style.background=t.dark?"#0E1729":"#E8E5DE";
+  render(`
+    <div class="scr on" style="display:flex;color:${fg};background:${t.bg}">
+      <p class="center" style="font-size:13px;opacity:.65;margin-bottom:10px">당신의 소비 유형은</p>
+      <div style="display:flex;justify-content:center">${heum(140,t.eye)}</div>
+      <div class="sp"></div>
+      <div class="center">
+        <div class="tname">${t.name}</div>
+        <p class="tline">${t.line}</p>
+      </div>
+      <div class="card" style="background:${cardBg}">
+        <h3>이럴 때 약함</h3>
+        <ul>${t.weak.map(function(w){return "<li>"+w+"</li>"}).join("")}</ul>
+      </div>
+      <div class="card" style="background:${cardBg}">
+        <h3>근데 이건 잘함</h3>
+        <p>${t.good}</p>
+      </div>
+      <div class="card rule" style="border:2px solid #F2C14E;background:${t.dark?"rgba(242,193,78,.10)":"#FFF9EC"}">
+        <h3 style="color:${t.dark?"#F2C14E":"#A8792A"}">후회 줄이는 법, 딱 하나만</h3>
+        <p class="rtitle">${t.rule}</p>
+        <p style="opacity:.8">${t.why.split("\n").join("<br>")}</p>
+      </div>
+      <p class="pct">8유형 중 하나 · 비율은 응답이 더 모이면 공개</p>
+      <div class="grow" style="min-height:26px"></div>
+      <button class="btn" id="next">친구는 뭐 나옴?</button>
+    </div>`);
+  log("result_view",{type:S.type});
+  let deep=0;
+  app.onscroll=null;
+  window.onscroll=function(){
+    const p=Math.round((window.scrollY+window.innerHeight)/document.body.scrollHeight*100);
+    if(p>deep+24){deep=p;log("result_scroll",{depth:p});}
+  };
+  document.getElementById("next").onclick=match;
+}
+
+/* ============ ④ 궁합 ============ */
+function match(){
+  const t=T[S.type], w=T[WORST[S.type]], b=T[BRAKE[S.type]];
+  document.getElementById("app").style.background="var(--paper)";
+  document.body.style.background="#E8E5DE";
+  window.onscroll=null;
+  render(`
+    <h2 class="center" style="margin-bottom:2px">소비 궁합</h2>
+    <p class="sub center">같이 쇼핑하면 어떻게 될까</p>
+    <div class="mrow">${heum(104,t.eye)}${heum(104,w.eye)}</div>
+    <div class="card" style="background:#FDF6E7;border:1.5px solid #ECD9A8">
+      <div class="mtag" style="color:#A8792A">최악의 쇼핑메이트</div>
+      <div class="mname">${w.name}</div>
+      <p style="color:#7A6A50">둘이 가면 둘 다 삽니다. 서로를 말리지 못해요.</p>
+    </div>
+    <div class="card" style="background:#fff;border:1.5px solid var(--line)">
+      <div class="mtag" style="color:#5F7568">최고의 브레이크</div>
+      <div class="mname">${b.name}</div>
+      <p style="color:#7A8496">당신을 유일하게 멈춰 세울 수 있는 유형</p>
+    </div>
+    <div class="grow" style="min-height:24px"></div>
+    <button class="btn" id="share">친구한테 보내기</button>
+    <div style="height:9px"></div>
+    <button class="btn ghost" id="ask" style="color:var(--navy)">고민 중인 거 있는데</button>
+  `);
+  log("match_view");
+  document.getElementById("share").onclick=function(){shareLink("match")};
+  document.getElementById("ask").onclick=ask;
+}
+
+/* ============ ⑤ 고민 등록 ============ */
+function ask(){
+  const t=T[S.type];
+  render(`
+    <h2>${t.name}님,<br>지금 고민 중인 거 있어요?</h2>
+    <p class="sub" style="margin-bottom:26px">3일 뒤에 어떻게 됐는지 물어볼게요</p>
+    <div class="field">
+      <label class="flabel" for="item">나 지금 뭐 살까 말까</label>
+      <input class="inp" id="item" placeholder="코트" autocomplete="off" maxlength="40">
+      <p class="err" id="e1">뭘 고민 중인지 적어주세요</p>
+    </div>
+    <div class="field">
+      <label class="flabel" for="amt">얼마짜리?</label>
+      <input class="inp" id="amt" placeholder="200,000" inputmode="numeric" autocomplete="off">
+      <p class="err" id="e2">금액을 숫자로 적어주세요</p>
+    </div>
+    <div class="grow" style="min-height:20px"></div>
+    <button class="btn" id="reg">등록하기</button>
+    <button class="btn plain" id="skip">나중에</button>
+  `);
+  log("ask_view");
+  const amt=document.getElementById("amt");
+  amt.oninput=function(){
+    const v=amt.value.replace(/[^0-9]/g,"");
+    amt.value=v?Number(v).toLocaleString():"";
+    document.getElementById("e2").classList.remove("on");
+  };
+  document.getElementById("item").oninput=function(){document.getElementById("e1").classList.remove("on")};
+  document.getElementById("reg").onclick=function(){
+    const item=document.getElementById("item").value.trim();
+    const n=+amt.value.replace(/[^0-9]/g,"");
+    let bad=false;
+    if(!item){document.getElementById("e1").classList.add("on");bad=true;}
+    if(!n){document.getElementById("e2").classList.add("on");bad=true;}
+    if(bad)return;
+    save("concerns",{result_id:S.rid,item:item,amount:n,created_at:new Date().toISOString()});
+    log("ask_submit",{amount:n});
+    done(item);
+  };
+  document.getElementById("skip").onclick=function(){log("ask_skip");done(null);};
+}
+
+/* ============ 완료 ============ */
+function done(item){
+  const t=T[S.type];
+  document.getElementById("app").style.background="var(--navy)";
+  document.body.style.background="#0E1729";
+  render(`
+    <div class="scr on dark" style="display:flex;background:var(--navy)">
+      <div class="grow" style="display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center">
+        ${heum(130,{y:-7,mouth:"dot"})}
+        <div class="sp"></div>
+        ${item
+          ? `<h2>${item}, 기억해둘게요</h2><p class="sub">3일 뒤에 어떻게 됐는지 물어볼게요.<br>알림 기능은 곧 붙습니다.</p>`
+          : `<h2>또 봐요</h2><p class="sub">고민되는 게 생기면 그때 오세요.</p>`}
+      </div>
+      <button class="btn" id="again">친구한테 보내기</button>
+      <button class="btn plain" id="re" style="color:#6F829F">다시 하기</button>
+    </div>`);
+  document.getElementById("again").onclick=function(){shareLink("end")};
+  document.getElementById("re").onclick=function(){S.a=[];S.i=0;landing();};
+}
+
+landing();
+</script>
+</body>
+</html>
